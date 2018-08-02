@@ -1,0 +1,32 @@
+{
+  "name": "omdo-api",
+  "version": "1.0.0",
+  "description": "Backend for omdo. Real time chat with no history.",
+  "main": "src/index.js",
+  "repository": "https://github.com/sthobis/omdo-api",
+  "author": "@sthobis",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "precommit": "pretty-quick --staged",
+    "test": "echo \"Error: no test specified yet\" && exit 1",
+    "dev": "cross-env NODE_ENV=development nodemon -w src -e js --exec \"babel-node src/index.js\"",
+    "build": "babel src -d build",
+    "start": "cross-env NODE_ENV=production node build/index.js"
+  },
+  "dependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "express": "^4.16.3",
+    "http": "^0.0.0",
+    "socket.io": "^2.1.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "cross-env": "^5.2.0",
+    "husky": "^0.14.3",
+    "nodemon": "^1.18.3",
+    "prettier": "^1.14.0",
+    "pretty-quick": "^1.6.0"
+  }
+}
