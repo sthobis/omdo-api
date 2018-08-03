@@ -24,34 +24,40 @@ const EVENT = {
 }
 
 io.on(EVENT.CONNECT, socket => {
+
   socket.on(EVENT.CLIENT_JOIN_ROOM, (user, cb) => {
     try {
-      const users = userManager.addUser(user)
+      const users = userManager.addUser({ ...user, id: socket.id })
+      console.log(`${EVENT.CLIENT_JOIN_ROOM} : "${user.name}" has join the room.`)
       socket.broadcast.emit(EVENT.SERVER_UPDATE_USER_LIST, users)
       cb(users)
     } catch (err) {
+      console.log(`${EVENT.CLIENT_JOIN_ROOM} : "${user.name}" failed to join the room. Username already taken.`)
       socket.emit(EVENT.SERVER_JOIN_ERROR, err)
+      socket.disconnect(true)
     }
   })
 
   socket.on(EVENT.CLIENT_LEAVE_ROOM, user => {
-    socket.broadcast.emit(EVENT.SERVER_UPDATE_USER_LIST, userManager.removeUser(user))
+    console.log(`${EVENT.CLIENT_LEAVE_ROOM} : "${user.name}" has left the room.`)
+    userManager.removeUserById(user.id)
+    socket.broadcast.emit(EVENT.SERVER_UPDATE_USER_LIST, userManager.users)
   })
 
   socket.on(EVENT.CLIENT_SEND_MESSAGE, payload => {
+    console.log(`${EVENT.CLIENT_SEND_MESSAGE} : "${payload.user.name}" sent a message.`)
     socket.broadcast.emit(EVENT.SERVER_UPDATE_HISTORY, payload)
   })
 
   socket.on(EVENT.DISCONNECT, reason => {
-    console.log(`DISCONNECT : ${reason}`)
-  })
-
-  socket.on(EVENT.DISCONNECTING, reason => {
-    console.log(`DISCONNECTING : ${reason}`)
+    console.log(`${EVENT.DISCONNECT} : ${reason}.`)
+    const disconnectedUser = userManager.removeUserById(socket.id)
+    disconnectedUser && console.log(`${EVENT.DISCONNECT} : "${disconnectedUser.name}" has left the room.`)
+    socket.broadcast.emit(EVENT.SERVER_UPDATE_USER_LIST, userManager.users)
   })
 
   socket.on(EVENT.ERROR, err => {
-    console.log(`ERROR : ${err}`)
+    console.log(`${EVENT.ERROR} : ${err}`)
   })
 })
 
